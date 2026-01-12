@@ -22,10 +22,11 @@ wait = WebDriverWait(driver, 15)
 
 # --- Fill Question 1: Date ---
 date_field = wait.until(EC.presence_of_element_located((By.XPATH, '//input[@aria-label="Date picker"]')))
-date_field.send_keys("01/12/2026")
+date_field.send_keys("01/12/2026")  # adjust format if needed
 
 # --- Fill Question 2: Application Site (radio button) ---
-site_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//span[contains(text(),"CareerBox Tatu City")]')))
+site_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//label[.//span[text()="CareerBox Tatu City"]]')))
+driver.execute_script("arguments[0].scrollIntoView(true);", site_option)
 site_option.click()
 
 # --- Collect all text inputs (Questions 3–8) ---
@@ -48,19 +49,23 @@ for i, value in enumerate(answers):
         print(f"Skipping answer {i} ({value}) — no matching input field")
 
 # --- Fill Question 9: Position Interested In (radio button) ---
-position_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//span[contains(text(),"Contact Center Agent")]')))
+position_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//label[.//span[text()="Contact Center Agent"]]')))
+driver.execute_script("arguments[0].scrollIntoView(true);", position_option)
 position_option.click()
 
 # --- Fill Question 10: How did you hear about us? (radio button) ---
-referral_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//span[contains(text(),"Referral")]')))
+referral_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//label[.//span[text()="Referral"]]')))
+driver.execute_script("arguments[0].scrollIntoView(true);", referral_option)
 referral_option.click()
 
 # --- Fill Question 11: Campaign (radio button) ---
-campaign_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//span[contains(text(),"International")]')))
+campaign_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//label[.//span[text()="International"]]')))
+driver.execute_script("arguments[0].scrollIntoView(true);", campaign_option)
 campaign_option.click()
 
 # --- Submit the form ---
 submit_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//button[@data-automation-id="submitButton"]')))
+driver.execute_script("arguments[0].scrollIntoView(true);", submit_button)
 submit_button.click()
 
 # --- After submit ---
@@ -71,6 +76,10 @@ if "Your response was recorded" in body_text or "Thank you" in body_text:
     print("Submission confirmed!")
 elif "Required" in body_text:
     print("Submission failed — required fields missing.")
+    # Report which fields failed
+    errors = driver.find_elements(By.XPATH, '//div[contains(text(),"Required")]')
+    for e in errors:
+        print("Unanswered field:", e.text)
 else:
     print("Submission may not have been accepted. Page text:", body_text[:200])
 
