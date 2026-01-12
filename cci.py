@@ -28,17 +28,32 @@ date_field.send_keys("01/12/2026")
 site_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//span[contains(text(),"CareerBox Tatu City")]')))
 site_option.click()
 
-# --- Fill text fields (Questions 3–10) ---
+# --- Collect all text inputs (Questions 3–8) ---
 all_inputs = wait.until(EC.presence_of_all_elements_located((By.XPATH, '//input[@placeholder="Enter your answer"]')))
+print("Found", len(all_inputs), "text input fields")
 
-all_inputs[0].send_keys("Cyril Kaari")          # Employee’s Name
-all_inputs[1].send_keys("CCIK18375")            # Employee’s Code
-all_inputs[2].send_keys("Shutterfly")           # Employee’s Campaign
-all_inputs[3].send_keys("Ashington Munene")     # Referral’s Full Name
-all_inputs[4].send_keys("37752085")             # Referral’s ID Number
-all_inputs[5].send_keys("0788552022")           # Referral’s Phone Number
-all_inputs[6].send_keys("Contact Center Agent") # Position Interested In
-all_inputs[7].send_keys("Referral")             # How did you hear about us?
+answers = [
+    "Cyril Kaari",          # Employee’s Name
+    "CCIK18375",            # Employee’s Code
+    "Shutterfly",           # Employee’s Campaign
+    "Ashington Munene",     # Referral’s Full Name
+    "37752085",             # Referral’s ID Number
+    "0788552022"            # Referral’s Phone Number
+]
+
+for i, value in enumerate(answers):
+    if i < len(all_inputs):
+        all_inputs[i].send_keys(value)
+    else:
+        print(f"Skipping answer {i} ({value}) — no matching input field")
+
+# --- Fill Question 9: Position Interested In (radio button) ---
+position_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//span[contains(text(),"Contact Center Agent")]')))
+position_option.click()
+
+# --- Fill Question 10: How did you hear about us? (radio button) ---
+referral_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//span[contains(text(),"Referral")]')))
+referral_option.click()
 
 # --- Fill Question 11: Campaign (radio button) ---
 campaign_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//span[contains(text(),"International")]')))
@@ -48,9 +63,15 @@ campaign_option.click()
 submit_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//button[@data-automation-id="submitButton"]')))
 submit_button.click()
 
-time.sleep(5)  # wait for confirmation page
+# --- After submit ---
+time.sleep(5)
+body_text = driver.find_element(By.TAG_NAME, "body").text
 
-print("Form submitted successfully!")
+if "Your response was recorded" in body_text or "Thank you" in body_text:
+    print("Submission confirmed!")
+elif "Required" in body_text:
+    print("Submission failed — required fields missing.")
+else:
+    print("Submission may not have been accepted. Page text:", body_text[:200])
 
 driver.quit()
-
